@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
@@ -36,12 +37,15 @@ import com.example.rescuepup.ui.screen.DogScreen
 import com.example.rescuepup.ui.screen.FavoritesScreen
 import com.example.rescuepup.ui.screen.ListPupScreen
 import com.example.rescuepup.ui.theme.RescuePupTheme
+import com.example.rescuepup.ui.theme.lobster
 import com.example.rescuepup.ui.theme.playwritings
 import com.example.rescuepup.ui.theme.ribeye
+import com.example.rescuepup.ui.theme.rubikxbold
 import com.example.rescuepup.viewmodel.DogViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 
 class MainActivity : ComponentActivity() {
@@ -53,6 +57,16 @@ class MainActivity : ComponentActivity() {
             Dispatchers.Main + SupervisorJob()))
         val dogDao = database.dogDao()
         val dogRepository = DogRepository(dogDao)
+
+        // Clear the database for debugging purposes
+//        CoroutineScope(Dispatchers.IO).launch {
+//            try {
+//                database.clearAllTables() // Clears all tables in the database
+//                Log.d("MainActivity", "Database cleared successfully")
+//            } catch (e: Exception) {
+//                Log.e("MainActivity", "Error clearing database", e)
+//            }
+//        }
 
         // Initialize the DogViewModel
         val dogViewModel = DogViewModel(dogRepository)
@@ -112,7 +126,7 @@ fun MainScreen(viewModel: DogViewModel) {
                 selectedTabIndex = selectedTab.value,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                val tabs = listOf("Local Pups", "Favorite Pups", "List-a-Pup")
+                val tabs = listOf("Find-a-Pup", "Fav Pups", "List-a-Pup")
 
                 tabs.forEachIndexed { index, title ->
                     Tab(
@@ -121,7 +135,8 @@ fun MainScreen(viewModel: DogViewModel) {
                             selectedTab.value = index // Mutate selectedTab
                             Log.d("MainScreen", "Tab selected: ${selectedTab.value}")
                         }, modifier = Modifier
-                            .padding(2.dp) // Padding for each tab
+                            .padding(3.dp) // Padding for each tab
+                            .height(40.dp)
                             .background(
                                 if (selectedTab.value == index) Color.Cyan else Color.LightGray, // Background color
                                 shape = MaterialTheme.shapes.small // Rounded corners
@@ -130,7 +145,7 @@ fun MainScreen(viewModel: DogViewModel) {
                             Text(
                                 text = title,
                                 style = TextStyle(
-                                    fontFamily = playwritings, fontSize = 18.sp, color = Color.Black
+                                    fontFamily = rubikxbold, fontSize = 17.sp, color = Color.Black
                                 )
                             )
                         }
@@ -153,28 +168,6 @@ fun MainScreen(viewModel: DogViewModel) {
     }
 }
 
-
-@Composable
-fun FavoritesScreen(viewModel: DogViewModel) {
-    // Display a list of favorite dogs
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(text = "Favorites", style = TextStyle(fontSize = 52.sp))
-    }
-}
-
-@Composable
-fun ListPupScreen(viewModel: DogViewModel) {
-    // Placeholder UI for posting pups up for adoption
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = "Post Pups for Adoption",
-            style = TextStyle(fontSize = 32.sp, color = Color.Black)
-        )
-    }
-}
 
 @Preview(showBackground = true)
 @Composable

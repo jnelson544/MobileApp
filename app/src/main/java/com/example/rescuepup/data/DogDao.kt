@@ -4,7 +4,10 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Delete
+import androidx.room.OnConflictStrategy
 import kotlinx.coroutines.flow.Flow
+
+
 
 @Dao
 interface DogDao {
@@ -12,8 +15,8 @@ interface DogDao {
     @Insert
     suspend fun insertDog(dog: Dog)
 
-    @Insert
-    suspend fun insertAll(dogs: List<Dog>)
+//    @Insert
+//    suspend fun insertAll(dogs: List<Dog>)
 
     // Retrieve all dogs from the database
     @Query("SELECT * FROM dogs")
@@ -22,4 +25,10 @@ interface DogDao {
     // Delete a specific dog from the database
     @Delete
     suspend fun deleteDog(dog: Dog)
+
+    @Query("DELETE FROM dogs")
+    suspend fun clearAllDogs()
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(dogs: List<Dog>)
 }

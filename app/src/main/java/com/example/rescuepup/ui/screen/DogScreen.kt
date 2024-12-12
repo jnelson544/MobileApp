@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,39 +33,6 @@ import com.example.rescuepup.data.Dog
 import com.example.rescuepup.ui.theme.rubik_reg
 import com.example.rescuepup.viewmodel.DogViewModel
 
-//// ui/DogScreen.kt
-//@Composable
-//fun DogScreen(viewModel: DogViewModel) {
-//    val uiState by viewModel.uiState
-//
-//    // Show loading indicator while fetching data
-//    if (uiState.isLoading) {
-//        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-//            CircularProgressIndicator()
-//        }
-//    } else {
-//        // Check if the dog list is empty
-//        if (uiState.dogList.isEmpty()) {
-//            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-//                Text("No Dogs Available", modifier = Modifier.padding(16.dp))
-//            }
-//        } else {
-//                 //List of dogs
-//                LazyColumn(modifier = Modifier.fillMaxSize().padding(top = 76.dp)) {
-//                    items(uiState.dogList) { dog ->
-//                        DogItem(dog = dog, viewModel = viewModel)
-//                    }
-//                }
-//        }
-//    }
-//
-//    // Optionally, show an error message if there is one
-//    uiState.errorMessage?.let {
-//        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-//            Text("Error: $it", color = Color.Red, modifier = Modifier.padding(16.dp))
-//        }
-//    }
-//}
 @Composable
 fun DogScreen(viewModel: DogViewModel) {
     val uiState by viewModel.uiState
@@ -78,6 +46,13 @@ fun DogScreen(viewModel: DogViewModel) {
 
         uiState.errorMessage?.let {
             ErrorMessage(it)
+        }
+        // Button to reset and repopulate the database
+        Button(
+            onClick = { viewModel.resetAndRepopulateDatabase() },
+            modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp)
+        ) {
+            Text("Click for Pups In Your Area!")
         }
     }
 }

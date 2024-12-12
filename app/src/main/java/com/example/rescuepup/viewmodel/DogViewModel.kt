@@ -21,16 +21,20 @@ class DogViewModel(private val dogRepository: DogRepository) : ViewModel() {
         _selectedTab.value = index  // Update the selected tab index
     }
 
-
-    init {
-        observeDogs()
+    // Trigger reset and repopulate
+    fun resetAndRepopulateDatabase() {
+        viewModelScope.launch {
+            dogRepository.resetAndRepopulateDatabase()
+            // After repopulating, fetch the dogs
+            fetchDogs()
+        }
     }
 
-    private fun observeDogs() {
-        viewModelScope.launch {
-            dogRepository.getAllDogs().collect { dogs ->
-                _uiState.value = DogUiState(dogList = dogs)
-            }
+    private suspend fun fetchDogs() {
+        // Collect dogs from the database after resetting
+        dogRepository.getAllDogs().collect { dogs ->
+            // Update the UI state with the collected list of dogs
+            _uiState.value = _uiState.value.copy(dogList = dogs)
         }
     }
 
@@ -64,10 +68,3 @@ class DogViewModel(private val dogRepository: DogRepository) : ViewModel() {
     }
 
 }
-
-
-//
-//
-//    fun selectTab(tabIndex: Int) {
-//        _selectedTab.value = tabIndex
-//    }

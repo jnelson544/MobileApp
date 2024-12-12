@@ -1,25 +1,26 @@
 package com.example.rescuepup
 
+import android.content.res.Configuration
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
-import androidx.compose.material3.TabRowDefaults
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,43 +30,76 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.rescuepup.data.DogRepository
+import com.example.rescuepup.data.RescuePupDatabase
+import com.example.rescuepup.ui.screen.DogScreen
+import com.example.rescuepup.ui.screen.FavoritesScreen
+import com.example.rescuepup.ui.screen.ListPupScreen
 import com.example.rescuepup.ui.theme.RescuePupTheme
+import com.example.rescuepup.ui.theme.playwritings
 import com.example.rescuepup.ui.theme.ribeye
+import com.example.rescuepup.viewmodel.DogViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+
 
 class MainActivity : ComponentActivity() {
+//    private val dogViewModel: DogViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val database = RescuePupDatabase.getDatabase(applicationContext, scope = CoroutineScope(
+            Dispatchers.Main + SupervisorJob()))
+        val dogDao = database.dogDao()
+        val dogRepository = DogRepository(dogDao)
+
+        // Initialize the DogViewModel
+        val dogViewModel = DogViewModel(dogRepository)
         enableEdgeToEdge()
         setContent {
             RescuePupTheme {
-                MainScreen()
-                DogScreen()
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) {
+                    // Set the background image using the Image composable
+                    Image(
+                        painter = painterResource(id = R.drawable.paws),
+                        contentDescription = "Paw prints background",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .align(Alignment.Center),
+                        contentScale = ContentScale.Crop // This ensures the image covers the entire background
+                    )
+                }
+                MainScreen(viewModel = dogViewModel)
             }
         }
+    }
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        Log.d("MainActivity", "Orientation changed: ${newConfig.orientation}")
     }
 }
 
 @Composable
-fun MainScreen() {
-    val tabs = listOf("All Dogs", "Favorites")
-    var selectedTabIndex = 0 // Use remember and mutableStateOf to dynamically control tab selection
+fun MainScreen(viewModel: DogViewModel) {
+    // Use rememberSaveable to make selectedTab persist across configuration changes like orientation changes
+    val selectedTab = rememberSaveable { mutableStateOf(0) } // Using rememberSaveable
 
     // Column to stack the title, content, and tabs
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-
         // Title at the top
         Text(
             text = "Rescue Pup",
-            style = TextStyle(fontFamily = ribeye, fontSize = 52.sp),
+            style = TextStyle(fontFamily = ribeye, fontSize = 62.sp),
             modifier = Modifier
-                .padding(42.dp)
+                .padding(12.dp)
                 .align(Alignment.CenterHorizontally)
-
         )
-
 
         // Content for the selected tab
         Box(
@@ -73,111 +107,79 @@ fun MainScreen() {
                 .weight(1f) // This will push the tabs to the bottom of the screen
                 .fillMaxSize()
         ) {
-            when (selectedTabIndex) {
-                0 -> AllDogsScreen() // Placeholder for All Dogs screen
-                1 -> FavoritesScreen() // Placeholder for Favorites screen
-            }
-        }
-
-        // Tab Row with a border at the bottom
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(2.dp, Color.Gray) // Border around the TabRow
-        ) {
+            // TabRow with dynamic background based on selected tab
             TabRow(
-                selectedTabIndex = selectedTabIndex,
-                modifier = Modifier.fillMaxWidth(),
-                indicator = { tabPositions ->
-                    TabRowDefaults.Indicator(
-                        Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
-                        color = Color.Blue, // Custom color for the indicator
-                        height = 4.dp // Custom height for the indicator
-                    )
-                }
+                selectedTabIndex = selectedTab.value,
+                modifier = Modifier.fillMaxWidth()
             ) {
+                val tabs = listOf("Local Pups", "Favorite Pups", "List-a-Pup")
+
                 tabs.forEachIndexed { index, title ->
                     Tab(
-                        selected = selectedTabIndex == index,
+                        selected = selectedTab.value == index,
                         onClick = {
-                            selectedTabIndex = index
-                        },
-                        modifier = Modifier
-                            .padding(4.dp) // Padding for each tab
+                            selectedTab.value = index // Mutate selectedTab
+                            Log.d("MainScreen", "Tab selected: ${selectedTab.value}")
+                        }, modifier = Modifier
+                            .padding(2.dp) // Padding for each tab
                             .background(
-                                if (selectedTabIndex == index) Color.Cyan else Color.LightGray, // Background color
-                                shape = MaterialTheme.shapes.small
+                                if (selectedTab.value == index) Color.Cyan else Color.LightGray, // Background color
+                                shape = MaterialTheme.shapes.small // Rounded corners
                             ), // Set shape for rounded corners
                         text = {
                             Text(
                                 text = title,
-                                style = CustomTabTextStyle() // Applying custom font style
+                                style = TextStyle(
+                                    fontFamily = playwritings, fontSize = 18.sp, color = Color.Black
+                                )
                             )
                         }
                     )
                 }
             }
-        }
-    }
-}
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                // Display the content based on the selected tab
+                when (selectedTab.value) {
+                    0 -> DogScreen(viewModel)
+                    1 -> FavoritesScreen(viewModel)
+                    2 -> ListPupScreen(viewModel)
+                }
+            }
 
-@Composable
-fun CustomTabTextStyle(): TextStyle {
-    return TextStyle(
-        fontFamily = ribeye, // Replace with your font
-        fontSize = 23.sp, // Change font size
-        color = Color.Black // Set text color
-    )
-}
-
-@Composable
-fun DogScreen() {
-//    dogList: List<Dog>
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        // Set the background image using the Image composable
-        Image(
-            painter = painterResource(id = R.drawable.paws),
-            contentDescription = "Paw prints background",
-            modifier = Modifier
-                .fillMaxSize()
-                .align(Alignment.Center),
-            contentScale = ContentScale.Crop // This ensures the image covers the entire background
-        )
-
-        // Your scrolling content goes here
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp) // Add padding to the content so it doesn't touch the edges
-        ) {
-//            items(dogList) { dog ->
-//                DogItem(dog)
-//            }
         }
     }
 }
 
 
-
 @Composable
-fun AllDogsScreen() {
-    // Display a list of all adoptable dogs
-    Text(text = "All Dogs")
-}
-
-@Composable
-fun FavoritesScreen() {
+fun FavoritesScreen(viewModel: DogViewModel) {
     // Display a list of favorite dogs
-    Text(text = "Favorites")
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Text(text = "Favorites", style = TextStyle(fontSize = 52.sp))
+    }
+}
+
+@Composable
+fun ListPupScreen(viewModel: DogViewModel) {
+    // Placeholder UI for posting pups up for adoption
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "Post Pups for Adoption",
+            style = TextStyle(fontSize = 32.sp, color = Color.Black)
+        )
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
     RescuePupTheme {
-        MainScreen()
+//        MainScreen()
     }
 }

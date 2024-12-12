@@ -64,13 +64,13 @@ dependencies {
     implementation(libs.androidx.material3)
 
     // Room Dependencies
-    implementation(libs.room.runtime)
-    implementation(libs.room.ktx)
-    ksp(libs.room.compiler) // Use KSP for annotation processing
+//    implementation(libs.room.runtime)
+//    implementation(libs.room.ktx)
+//    ksp(libs.room.compiler) // Use KSP for annotation processing
 
-//    implementation("androidx.room:room-runtime:2.5.2")
-//    implementation("androidx.room:room-ktx:2.5.2")
-//    ksp("androidx.room:room-compiler:2.5.2")
+    implementation(libs.androidx.room.runtime.v261)
+    implementation(libs.androidx.room.ktx.v261)
+    ksp(libs.androidx.room.compiler.v261)
 
     // Test Dependencies
     testImplementation(libs.junit)

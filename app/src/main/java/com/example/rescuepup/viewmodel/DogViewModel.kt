@@ -5,34 +5,33 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rescuepup.data.Dog
+import com.example.rescuepup.data.DogRepository
 import com.example.rescuepup.data.DogUiState
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
-class DogViewModel : ViewModel() {
+class DogViewModel(private val dogRepository: DogRepository) : ViewModel() {
     private val _uiState = mutableStateOf(DogUiState())
-    val uiState: State<DogUiState> = _uiState
+    private val _selectedTab = mutableStateOf(0)
 
-    // Simulating loading data
-    fun loadDogs() {
-        viewModelScope.launch {
-            _uiState.value = DogUiState(isLoading = true) // Show loading
-            try {
-                // Simulate data fetch
-                val dogs = fetchDogsFromDatabase() // Replace with real database call
-                _uiState.value = DogUiState(dogList = dogs) // Update UIState with dogs
-            } catch (e: Exception) {
-                _uiState.value = DogUiState(errorMessage = e.message)
-            }
-        }
+    val uiState: State<DogUiState> = _uiState
+    val selectedTab: State<Int> = _selectedTab
+
+    fun setSelectedTab(index: Int) {
+        _selectedTab.value = index  // Update the selected tab index
     }
 
-    // Simulate fetching dogs from a repository/database
-    private suspend fun fetchDogsFromDatabase(): List<Dog> {
-        // In a real app, you would call your repository or Room DB here
-        return listOf(
-            Dog(1, "Max", "Bulldog", 5, "https://example.com/max.jpg"),
-            Dog(2, "Bella", "Labrador", 3, "https://example.com/bella.jpg")
-        )
+
+    init {
+        observeDogs()
+    }
+
+    private fun observeDogs() {
+        viewModelScope.launch {
+            dogRepository.getAllDogs().collect { dogs ->
+                _uiState.value = DogUiState(dogList = dogs)
+            }
+        }
     }
 
     // Function to add a dog to the favorites
@@ -48,4 +47,27 @@ class DogViewModel : ViewModel() {
         updatedFavorites.remove(dog)
         _uiState.value = _uiState.value.copy(favoriteDogs = updatedFavorites)
     }
+
+    // Add a new dog to the database
+    fun addDogs(dogs: List<Dog>) {
+        viewModelScope.launch {
+            try {
+                dogRepository.insertAll(dogs)
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(errorMessage = e.message)
+            }
+        }
+    }
+    // Add a single dog (for convenience)
+    fun addDog(dog: Dog) {
+        addDogs(listOf(dog))
+    }
+
 }
+
+
+//
+//
+//    fun selectTab(tabIndex: Int) {
+//        _selectedTab.value = tabIndex
+//    }

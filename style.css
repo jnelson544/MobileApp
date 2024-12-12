@@ -4,11 +4,14 @@ body {
     padding: 0;
     line-height: 1.6;
 }
-
-header, footer { 
+title {
     font-size: 3rem; 
     font-weight: 700; 
-    color: black; 
+    color: black;
+}
+
+header, footer { 
+ 
     text-align: center;
     padding: 20px;
     background-color: #f4f4f4;

@@ -169,6 +169,7 @@ fun MainScreen(viewModel: DogViewModel) {
 }
 
 
+
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {

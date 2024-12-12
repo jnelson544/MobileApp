@@ -1,5 +1,6 @@
 package com.example.rescuepup.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -21,14 +22,28 @@ class DogViewModel(private val dogRepository: DogRepository) : ViewModel() {
         _selectedTab.value = index  // Update the selected tab index
     }
 
-    // Trigger reset and repopulate
+//    // Trigger reset and repopulate
+//    fun resetAndRepopulateDatabase() {
+//        viewModelScope.launch {
+//            dogRepository.resetAndRepopulateDatabase()
+//            // After repopulating, fetch the dogs
+//            fetchDogs()
+//        }
+//    }
+
     fun resetAndRepopulateDatabase() {
         viewModelScope.launch {
-            dogRepository.resetAndRepopulateDatabase()
-            // After repopulating, fetch the dogs
-            fetchDogs()
+            try {
+                dogRepository.resetAndRepopulateDatabase()
+                // After repopulating, fetch the dogs
+                fetchDogs()
+            } catch (e: Exception) {
+                Log.e("DatabaseError", "Error resetting and repopulating database", e)
+                // Handle or display error message
+            }
         }
     }
+
 
     private suspend fun fetchDogs() {
         // Collect dogs from the database after resetting
@@ -37,6 +52,14 @@ class DogViewModel(private val dogRepository: DogRepository) : ViewModel() {
             _uiState.value = _uiState.value.copy(dogList = dogs)
         }
     }
+
+//    fun toggleFavorite(dogId: Int) {
+//        val updatedList = uiState.value.dogList.map { dog ->
+//            if (dog.id == dogId) dog.copy(isFavorite = !dog.isFavorite) else dog
+//        }
+//        _uiState.value = uiState.value.copy(dogList = updatedList)
+//    }
+
 
     // Function to add a dog to the favorites
     fun addToFavorites(dog: Dog) {

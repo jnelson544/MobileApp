@@ -6,13 +6,19 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabase.*
+import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.rescuepup.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-
+//val MIGRATION_1_2 = object : Migration(1, 2) {
+//    override fun migrate(database: SupportSQLiteDatabase) {
+//        // Example migration: Add a new column to the 'dog' table
+//        database.execSQL("ALTER TABLE dog ADD COLUMN age INTEGER NOT NULL DEFAULT 0")
+//    }
+//}
 // Define the Room database class
-@Database(entities = [Dog::class], version = 1)
+@Database(entities = [Dog::class], version = 2)
 abstract class RescuePupDatabase : RoomDatabase() {
 
     // Abstract method to get the DAO
@@ -30,6 +36,8 @@ abstract class RescuePupDatabase : RoomDatabase() {
                     RescuePupDatabase::class.java,
                     "rescue_pup_database"
                 )
+//                    .addMigrations(MIGRATION_1_2)
+                    .fallbackToDestructiveMigration()
                     .addCallback(DogDatabaseCallback(scope))
                     .build()
                 INSTANCE = instance

@@ -64,13 +64,11 @@ dependencies {
     implementation(libs.androidx.material3)
 
     // Room Dependencies
-//    implementation(libs.room.runtime)
-//    implementation(libs.room.ktx)
-//    ksp(libs.room.compiler) // Use KSP for annotation processing
-
     implementation(libs.androidx.room.runtime.v261)
     implementation(libs.androidx.room.ktx.v261)
     ksp(libs.androidx.room.compiler.v261)
+
+//    implementation("androidx.navigation:navigation-compose:2.5.0")
 
     // Test Dependencies
     testImplementation(libs.junit)

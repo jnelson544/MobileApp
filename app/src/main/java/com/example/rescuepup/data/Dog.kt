@@ -11,6 +11,7 @@ data class Dog(
     val breed: String,
     val age: Int,
     val location: String,
-    val imageResId: Int
+    val imageResId: Int,
+//    var isFavorite: Boolean = false // Track favorite status
 )
 

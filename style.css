@@ -6,6 +6,10 @@ body {
 }
 
 header, footer {
+   font-family: 'Roboto', sans-serif; 
+    font-size: 3rem; 
+    font-weight: 700; 
+    color: black; 
     text-align: center;
     padding: 20px;
     background-color: #f4f4f4;

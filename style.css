@@ -53,17 +53,18 @@ figcaption {
 
 .video-row {
     display: flex;
-    flex-wrap: wrap; 
     gap: 20px; 
-    justify-content: center; 
+    justify-content: flex-start; 
+    flex-wrap: nowrap; 
+    overflow-x: auto; 
 }
 
 .video-row figure {
     display: flex;
     flex-direction: column; 
-    align-items: center; 
-    max-width: 300px;
+    align-items: center;
     text-align: center; 
+    margin: 0; 
 }
 
 .video-row video {

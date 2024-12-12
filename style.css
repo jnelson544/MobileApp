@@ -50,3 +50,24 @@ figcaption {
     font-size: 14px;
     color: #666;
 }
+
+.video-row {
+    display: flex;
+    flex-wrap: wrap; 
+    gap: 20px; 
+    justify-content: center; 
+}
+
+.video-row figure {
+    display: flex;
+    flex-direction: column; 
+    align-items: center; 
+    max-width: 300px;
+    text-align: center; 
+}
+
+.video-row video {
+    border: 1px solid #ddd; 
+    border-radius: 8px; 
+}
+
